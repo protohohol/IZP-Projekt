@@ -33,6 +33,34 @@ void clean(char *c) {
     }
 }
 
+void fill_array(char*** array, char* source, int start) {
+    char element[31];
+    int g = 0;
+    int f = 0;
+    while (source[start] != '\n' && g <= 30) {
+        element[g] = source[start];
+        element[g+1] = '\0';
+        g++;
+        if (source[start+1] == '\n' || source[start+1] == '\0' || source[start+1] == ' ') {
+            char** check = (char**)realloc((*array), (31 * (f+2)));
+            if (!check) {
+                fprintf(stderr, "Smt is wrong ;(");
+            } else {
+                (*array) = check;
+            }
+            (*array)[f+1] = (char*)malloc(31);
+            strcpy((*array)[f], element);
+            f++;                         
+            clean(element);
+            g = 0;
+            if (source[start+1] == '\n' || source[start+1] == '\0') {
+                break;
+            }
+        }
+        start++;
+    }
+}
+
 typedef struct {
     char** elements;
     int position;
@@ -48,15 +76,21 @@ int main(int argc, char **argv) {
 
     FILE *f = fopen(argv[1], "r");
     int buf;
-    char* buffer = (char*)malloc(sizeof(char) * 1);;
+    char* buffer = (char*)malloc(1);;
     int c = 0;
     int count = 0;
-    char** uni = (char**)malloc(sizeof(char*) * 1);
-    uni[0] = (char*)malloc(31 * sizeof(char));
+    char** uni = (char**)malloc(1);
+    uni[0] = (char*)malloc(31);
     int am = 1;
 
     while((buf = fgetc(f)) != EOF) {
-        buffer = (char*)realloc(buffer, sizeof(char) * (c+1));
+        char* check = (char*)realloc(buffer, (c+2));
+        if (!check) {
+            fprintf(stderr, "Smt is wrong ;(");
+            return 1;
+        } else {
+            buffer = check;
+        }
         if (buf != '\n' && buf != '\0') {
             buffer[count] = (char)buf;
             buffer[count + 1] = '\0';
@@ -65,27 +99,28 @@ int main(int argc, char **argv) {
             count = 0;
             if (am == 1) {
                 if (buffer[0] == 'U') {
-                    int i = 2;
-                    char element[31];
-                    int g = 0;
-                    int f = 0;
-                    while (buffer[i] != '\n') {
-                        element[g] = buffer[i];
-                        element[g+1] = '\0';
-                        g++;
-                        if (buffer[i+1] == '\n' || buffer[i+1] == '\0' || buffer[i+1] == ' ') {
-                            uni = (char**)realloc(uni, (sizeof(char*) * (f+2)));
-                            uni[f+1] = (char*)malloc(31 * sizeof(char));
-                            strcpy(uni[f], element);
-                            f++;                         
-                            clean(element);
-                            g = 0;
-                            if (buffer[i+1] == '\n' || buffer[i+1] == '\0') {
-                                break;
-                            }
-                        }
-                        i++;
-                    }
+                    // int i = 2;
+                    // char element[31];
+                    // int g = 0;
+                    // int f = 0;
+                    // while (buffer[i] != '\n') {
+                    //     element[g] = buffer[i];
+                    //     element[g+1] = '\0';
+                    //     g++;
+                    //     if (buffer[i+1] == '\n' || buffer[i+1] == '\0' || buffer[i+1] == ' ') {
+                    //         uni = (char**)realloc(uni, (sizeof(char*) * (f+2)));
+                    //         uni[f+1] = (char*)malloc(31 * sizeof(char));
+                    //         strcpy(uni[f], element);
+                    //         f++;                         
+                    //         clean(element);
+                    //         g = 0;
+                    //         if (buffer[i+1] == '\n' || buffer[i+1] == '\0') {
+                    //             break;
+                    //         }
+                    //     }
+                    //     i++;
+                    // }
+                    fill_array(&uni, buffer, 2);
                 }
             }
             printf("buffer: %s\n", buffer);
