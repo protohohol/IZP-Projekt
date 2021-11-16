@@ -33,7 +33,7 @@ void clean(char *c) {
     }
 }
 
-void fill_array(char*** array, char* source, int start) {
+int fill_array(char*** array, char* source, int start) {
     char element[31];
     int g = 0;
     int f = 0;
@@ -44,8 +44,8 @@ void fill_array(char*** array, char* source, int start) {
         if (source[start+1] == '\n' || source[start+1] == '\0' || source[start+1] == ' ') {
             char** check = (char**)realloc((*array), (31 * (f+2)));
             if (!check) {
-                fprintf(stderr, "Smt is wrong ;(");
-                return;
+                fprintf(stderr, "Smt is wrong ;(\n");
+                return 0;
             } else {
                 (*array) = check;
             }
@@ -60,6 +60,11 @@ void fill_array(char*** array, char* source, int start) {
         }
         start++;
     }
+    if (g > 30) {
+        fprintf(stderr, "Max length of argument is 30!\n");
+        return 0;
+    }
+    return 1;
 }
 
 typedef struct {
@@ -83,11 +88,13 @@ int main(int argc, char **argv) {
     char** uni = (char**)malloc(1);
     uni[0] = (char*)malloc(31);
     int am = 1;
+    set s1 = {.elements = (char**)malloc(1), .position = 0};
+    s1.elements[0] = (char*)malloc(31);
 
     while((buf = fgetc(f)) != EOF) {
         char* check = (char*)realloc(buffer, (c+2));
         if (!check) {
-            fprintf(stderr, "Smt is wrong ;(");
+            fprintf(stderr, "Smt is wrong ;(\n");
             return 1;
         } else {
             buffer = check;
@@ -100,29 +107,17 @@ int main(int argc, char **argv) {
             count = 0;
             if (am == 1) {
                 if (buffer[0] == 'U') {
-                    // int i = 2;
-                    // char element[31];
-                    // int g = 0;
-                    // int f = 0;
-                    // while (buffer[i] != '\n') {
-                    //     element[g] = buffer[i];
-                    //     element[g+1] = '\0';
-                    //     g++;
-                    //     if (buffer[i+1] == '\n' || buffer[i+1] == '\0' || buffer[i+1] == ' ') {
-                    //         uni = (char**)realloc(uni, (sizeof(char*) * (f+2)));
-                    //         uni[f+1] = (char*)malloc(31 * sizeof(char));
-                    //         strcpy(uni[f], element);
-                    //         f++;                         
-                    //         clean(element);
-                    //         g = 0;
-                    //         if (buffer[i+1] == '\n' || buffer[i+1] == '\0') {
-                    //             break;
-                    //         }
-                    //     }
-                    //     i++;
-                    // }
-                    fill_array(&uni, buffer, 2);
+                    if (!fill_array(&uni, buffer, 2)) {
+                        return 1;
+                    }
                 }
+            }
+            if (buffer[0] == 'S') {
+                    if (!fill_array(&s1.elements, buffer, 2)) {
+                        return 1;
+                    }
+                    s1.position = am;
+            
             }
             printf("buffer: %s\n", buffer);
             clean(buffer);
@@ -132,11 +127,17 @@ int main(int argc, char **argv) {
     }
 
     for (int z = 0; uni[z][0] != '\0'; z++) {
-        printf("uni.elements[%d]: %s\n", z, uni[z]);
+        printf("uni[%d]: %s\n", z, uni[z]);
         free(uni[z]);
     }
-    
+
+    for (int z = 0; s1.elements[z][0] != '\0'; z++) {
+        printf("set.elements[%d]: %s\n", z, s1.elements[z]);
+        free(s1.elements[z]);
+    }
+
     free(uni);
+    free(s1.elements);
     free(buffer);
     fclose(f);
 
