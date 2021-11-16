@@ -45,6 +45,7 @@ void fill_array(char*** array, char* source, int start) {
             char** check = (char**)realloc((*array), (31 * (f+2)));
             if (!check) {
                 fprintf(stderr, "Smt is wrong ;(");
+                return;
             } else {
                 (*array) = check;
             }
