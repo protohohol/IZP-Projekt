@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 //
 // bool IsEmpy(char A) {}
 // int Card(char A) {}
@@ -32,6 +33,16 @@ void clean(char *c) {
     }
 }
 
+typedef struct {
+    char** elements;
+    int position;
+} set;
+
+typedef struct {
+    char* elements;
+    int position;
+} relation;
+
 int main(int argc, char **argv) {
     (void) argc;
 
@@ -40,27 +51,57 @@ int main(int argc, char **argv) {
     char* buffer = (char*)malloc(sizeof(char) * 1);;
     int c = 0;
     int count = 0;
+    char** uni = (char**)malloc(sizeof(char*) * 1);
+    uni[0] = (char*)malloc(31 * sizeof(char));
+    int am = 1;
 
     while((buf = fgetc(f)) != EOF) {
-        //printf("buf: %c\n", buf);
-        buffer = (char*)realloc(buffer, sizeof(char) * c);
+        buffer = (char*)realloc(buffer, sizeof(char) * (c+1));
         if (buf != '\n' && buf != '\0') {
-            //printf("hi!\n");
             buffer[count] = (char)buf;
             buffer[count + 1] = '\0';
             count++;
-            //buffer[c+1] = '\0';
-            //printf("hi!1\n");
         } else {
             count = 0;
+            if (am == 1) {
+                if (buffer[0] == 'U') {
+                    int i = 2;
+                    char element[31];
+                    int g = 0;
+                    int f = 0;
+                    while (buffer[i] != '\n') {
+                        element[g] = buffer[i];
+                        element[g+1] = '\0';
+                        g++;
+                        if (buffer[i+1] == '\n' || buffer[i+1] == '\0' || buffer[i+1] == ' ') {
+                            uni = (char**)realloc(uni, (sizeof(char*) * (f+2)));
+                            uni[f+1] = (char*)malloc(31 * sizeof(char));
+                            strcpy(uni[f], element);
+                            f++;                         
+                            clean(element);
+                            g = 0;
+                            if (buffer[i+1] == '\n' || buffer[i+1] == '\0') {
+                                break;
+                            }
+                        }
+                        i++;
+                    }
+                }
+            }
             printf("buffer: %s\n", buffer);
             clean(buffer);
+            am++;
         }
         c++;
-        //printf("buf: %c\n", buf);
     }
 
-    free(buffer); 
+    for (int z = 0; uni[z][0] != '\0'; z++) {
+        printf("uni.elements[%d]: %s\n", z, uni[z]);
+        free(uni[z]);
+    }
+    
+    free(uni);
+    free(buffer);
     fclose(f);
 
     return 0;
