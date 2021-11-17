@@ -33,10 +33,14 @@ void clean(char *c) {
     }
 }
 
-int fill_array(char*** array, char* source, int start) {
+int fill_array(char*** array, char* source) {
+    (*array) = (char**)malloc(1);
+    (*array)[0] = (char*)malloc(31);
+    
     char element[31];
     int g = 0;
     int f = 0;
+    int start = 2;
     while (source[start] != '\n' && g <= 30) {
         element[g] = source[start];
         element[g+1] = '\0';
@@ -73,7 +77,7 @@ typedef struct {
 } set;
 
 typedef struct {
-    char* elements;
+    char** elements;
     int position;
 } relation;
 
@@ -85,11 +89,10 @@ int main(int argc, char **argv) {
     char* buffer = (char*)malloc(1);;
     int c = 0;
     int count = 0;
-    char** uni = (char**)malloc(1);
-    uni[0] = (char*)malloc(31);
+    char** uni;
     int am = 1;
-    set s1 = {.elements = (char**)malloc(1), .position = 0};
-    s1.elements[0] = (char*)malloc(31);
+    set* s1 = (set*)malloc(sizeof(set));
+    int setc = 0;
 
     while((buf = fgetc(f)) != EOF) {
         char* check = (char*)realloc(buffer, (c+2));
@@ -107,17 +110,24 @@ int main(int argc, char **argv) {
             count = 0;
             if (am == 1) {
                 if (buffer[0] == 'U') {
-                    if (!fill_array(&uni, buffer, 2)) {
+                    if (!fill_array(&uni, buffer)) {
                         return 1;
                     }
                 }
             }
             if (buffer[0] == 'S') {
-                    if (!fill_array(&s1.elements, buffer, 2)) {
-                        return 1;
-                    }
-                    s1.position = am;
-            
+                if (!fill_array(&s1[setc].elements, buffer)) {
+                    return 1;
+                }
+                s1[setc].position = am;
+                setc++;
+                set* s2 = (set*)realloc(s1, sizeof(set) * (setc + 1));
+                if (!s2) {
+                    fprintf(stderr, "Smt is wrong ;(\n");
+                    return 1;
+                } else {
+                    s1 = s2;
+                }
             }
             printf("buffer: %s\n", buffer);
             clean(buffer);
@@ -131,13 +141,16 @@ int main(int argc, char **argv) {
         free(uni[z]);
     }
 
-    for (int z = 0; s1.elements[z][0] != '\0'; z++) {
-        printf("set.elements[%d]: %s\n", z, s1.elements[z]);
-        free(s1.elements[z]);
+    for (int i = 0; i < setc; i++) {
+        for (int n = 0; s1[i].elements[n][0] != '\0'; n++) {
+            printf("s1[%d].elements[%d]: %s\n", i, n, s1[i].elements[n]);
+            free(s1[i].elements[n]);
+        }
+        free(s1[i].elements);
     }
 
     free(uni);
-    free(s1.elements);
+    free(s1);
     free(buffer);
     fclose(f);
 
