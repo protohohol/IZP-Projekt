@@ -54,6 +54,7 @@ int fill_array(char*** array, char* source) {
                 (*array) = check;
             }
             (*array)[f + 1] = (char*)malloc(31);
+            (*array)[f + 1][0] = '\0';
             strcpy((*array)[f], element);
             f++;                         
             clean(element);
@@ -121,6 +122,7 @@ int fill_relation(char**** array, char* source) {
                     (*array)[r + 1] = (char**)malloc(2);
                     (*array)[r + 1][f] = (char*)malloc(31);
                     (*array)[r + 1][f + 1] = (char*)malloc(31);
+                    (*array)[r + 1][0][0] = '\0';
                 }
             }
             strcpy((*array)[r][f], element);
