@@ -1,0 +1,170 @@
+#include <stdio.h>
+#include <string.h>
+#include <malloc.h>
+#include <stdbool.h>
+
+typedef struct {
+    char** elements;
+    int position;
+} set;
+
+typedef struct {
+    char** elements;
+    int position;
+} relation;
+
+//empty A
+bool isEmpty(set A){
+    if (A.elements[0][0] == '\0'){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+//card A
+void card(set A) {
+    printf ("%d\n", A.position);
+}
+
+//union A B
+void union_sets(set A, set B) {
+    printf("S ");
+    for(int k = 0; k < A.position; k++) {
+        printf("%s ", A.elements[k]);
+    for (int i = 0; i < B.position; ++i) {
+        for (int j = 0; j < A.position; ++j) {
+            if (strcmp(B.elements[i], A.elements[j]) == 0) {
+                break;
+            }
+            if (j != A->position - 1) {
+                continue;
+            }
+            if (strcmp(B->elements[i], A->elements[A->position - 1]) != 0) {
+                printf("%s ", B->elements[i]);
+            }
+        }
+
+    }
+    printf("\n");
+}
+
+//intersect A B
+void intersect(set A, set B){
+    printf("S ")
+    for (int i = 0; i < A.position; ++i){
+        for (int j = 0; j < B.position; ++j){
+            if (strcmp(A.elements[i], B.elements[j]) == 0){
+                printf("%s ", A.elements[i]);
+                break;
+            }
+        }
+    }
+    printf("\n");
+}
+
+//subseteq A B
+bool isSubseteq(set A, set B){
+    for (int i = 0; i < A.position; ++i){
+        for (int j = 0 ; j < B.position; ++j){
+            if (strcmp(A.elements[i], B.elements[j]) == 0){
+                break;
+            }
+            if (j != B.position - 1){
+                continue;
+            }
+            if (strcmp(A.elements[i], B.elements[B.position - 1]) != 0){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+//equals A B
+bool isEquals(set A, set B){
+    if (A.position = B.position){
+        isSubseteq(A,B);
+    } else {
+        return false;
+    }
+}
+
+//subset A B
+bool subset(set A, set B) {
+        if (isEquals(A, B)) {
+            return false;
+        }
+        for (int i = 0; i < A.position; ++i){
+            for (int j = 0 ; j < B.position; ++j){
+                if (strcmp(A.elements[i], B.elements[j]) == 0){
+                    break;
+                }
+                if (j != B.position - 1){
+                    continue;
+                }
+                if (strcmp(A.elements[i], B.elements[B.position - 1]) != 0){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+//minus A B
+void minus(set A, set B){
+    printf ("S ")
+    if (isEquals(A,B) == 1){
+        printf("\n");
+    } else{
+        for (int i = 0; i < A.position; ++i){
+            for (int j = 0; j < B.position; ++j){
+                if (strcmp(A.elements[i], B.elements[j]) == 0){
+                    break;
+                }
+                if (j != B.position - 1){
+                    continue;
+                }
+                if (strcmp(A.elements[i], B.elements[B.position - 1]) != 0){
+                    printf("%s ", A.elements[i]);
+                }
+            }
+        }
+    }
+    printf("\n");
+}
+
+//complement
+void complement(set A, set Universe){
+    minus(Universe, A);
+}
+
+
+int main() {
+    set Universe, A, B;
+
+    if(isEmpty(A) == 1) {
+        printf("True\n");
+    } else {printf("False\n")};
+    card(A);
+    complement(A, Universe);
+    union_set(set A, set B);
+    intersect(A, B);
+    minus(set A, set B);
+    if (isSubseteq(A, B) == 1) {
+        printf("True\n");
+    } else {printf("False\n")};
+    if (isSubset(A, B) == 1) {
+        printf("True\n");
+    } else {printf("False\n")};
+    if (isEquals(A, B) == 1) {
+        printf("True\n");
+    } else {printf("False\n")};
+
+//    isSymmetric();
+//    isTransitive();
+//    isDomain();
+//    isInjective();
+//    isBijective();
+    return 0;
+}
