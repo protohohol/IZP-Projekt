@@ -49,6 +49,7 @@ int fillArray(char*** array, char* source) {
         if (endOfLine(source[start + 1]) || source[start + 1] == ' ') {
             char** checkArray = (char**)realloc((*array), (31 * (positionInArray + 2)));
             if (!checkArray) {
+                //free()
                 fprintf(stderr, "Cannot realloc given array\n");
                 return 0;
             } else {
@@ -120,6 +121,14 @@ int fillRelation(char**** array, char* source) {
                     (*array)[positionInRelation + 1][numberOfBinaryElement] = (char*)malloc(31);
                     (*array)[positionInRelation + 1][numberOfBinaryElement + 1] = (char*)malloc(31);
                     (*array)[positionInRelation + 1][0][0] = '\0';
+                }
+            } else {
+                char*** checkArray = (char***)realloc((*array), (62 * (positionInRelation + 2)));
+                if (!checkArray) {
+                    fprintf(stderr, "Cannot realloc given array!\n");
+                    return 0;
+                } else {
+                    (*array) = checkArray;
                 }
             }
             strcpy((*array)[positionInRelation][numberOfBinaryElement], element);
