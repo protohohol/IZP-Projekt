@@ -223,9 +223,7 @@ int main() {
         printf("True\n");
     } else {printf("False\n")};
 
-//    isSymmetric();
-//    isTransitive();
-//    isDomain();
+
 //    isInjective();
 //    isBijective();
     return 0;
