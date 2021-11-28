@@ -184,22 +184,7 @@ bool isTransitive(struct relation R) {
 }
 
 
-void domain(struct relation R){
-    printf("%s ", R.elements[0][0]);
-    for (int i = 1; i < R.position; ++i){
-        for (int j = 0; j < i; j++){
-            if (strcmp(R.elements[i][0],R.elements[j][0]) != 0 && (j != i - 1)){
-                continue;
-            }
-            else if (strcmp(R.elements[i][0],R.elements[j][0]) != 0){
-                printf("%s ", R.elements[i][0]);
-            }
-            else if (strcmp(R.elements[i][0],R.elements[j][0]) == 0){
-                break;
-            }
-        }
-    }
-}
+
 
 
 ////reflexive
@@ -248,6 +233,26 @@ bool isFunction(relation *R) {
     } else {
         return true;
     }
+}
+
+
+void domain(struct relation R){
+     if(isFunction(R)){
+    printf("%s ", R.elements[0][0]);
+    for (int i = 1; i < R.position; ++i){
+        for (int j = 0; j < i; j++){
+            if (strcmp(R.elements[i][0],R.elements[j][0]) != 0 && (j != i - 1)){
+                continue;
+            }
+            else if (strcmp(R.elements[i][0],R.elements[j][0]) != 0){
+                printf("%s ", R.elements[i][0]);
+            }
+            else if (strcmp(R.elements[i][0],R.elements[j][0]) == 0){
+                break;
+            }
+        }
+    } else {
+    printf("Relation is not function!\n");}
 }
 
 //codomain R
