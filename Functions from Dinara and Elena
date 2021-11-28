@@ -23,7 +23,7 @@ bool isEmpty(set *A){
 
 //card A
 void card(set *A) {
-    printf ("%d\n", A.position);
+    printf ("%d\n", A->size);
 }
 
 //union A B
