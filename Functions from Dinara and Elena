@@ -139,6 +139,68 @@ void complement(set A, set Universe){
     minus(Universe, A);
 }
 
+bool isSymmetric(struct relation R){
+    for (int i = 0; i < R.position; ++i) {
+        for (int j = 0; j <  R.position; ++j){
+            if ((strcmp(R.elements[i][0],R.elements[j][1]) != 0) && (j != R.position)){
+                continue;
+            }
+            else if (strcmp(R.elements[i][0],R.elements[R.position][1]) != 0){
+                return false;
+            }
+            else {
+                if (strcmp(R.elements[i][1],R.elements[j][0]) == 0){
+                    break;
+                } else {
+                    continue;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+
+bool isTransitive(struct relation R) {
+    for (int i = 0; i < R.position; ++i) {
+        for (int j = 1; j < R.position; ++j) {
+            if (strcmp(R.elements[i][1], R.elements[j][0]) == 0){
+                for (int k = 0; k < R.position; ++k) {
+                    if ((strcmp(R.elements[i][0], R.elements[k][0]) != 0 || strcmp(R.elements[j][1], R.elements[k][1]) != 0) && (j != R.position)){
+                        continue;
+                    }
+                    else if (strcmp(R.elements[i][0], R.elements[R.position][0]) != 0 || strcmp(R.elements[j][1], R.elements[R.position][1]) != 0){
+                        return false; //when iterate till the end and have not found needed
+                    } else {
+                        if (strcmp(R.elements[i][0], R.elements[k][0]) == 0 && strcmp(R.elements[j][1], R.elements[k][1]) == 0){
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
+
+
+void domain(struct relation R){
+    printf("%s ", R.elements[0][0]);
+    for (int i = 1; i < R.position; ++i){
+        for (int j = 0; j < i; j++){
+            if (strcmp(R.elements[i][0],R.elements[j][0]) != 0 && (j != i - 1)){
+                continue;
+            }
+            else if (strcmp(R.elements[i][0],R.elements[j][0]) != 0){
+                printf("%s ", R.elements[i][0]);
+            }
+            else if (strcmp(R.elements[i][0],R.elements[j][0]) == 0){
+                break;
+            }
+        }
+    }
+}
+
 
 int main() {
     set Universe, A, B;
@@ -161,9 +223,7 @@ int main() {
         printf("True\n");
     } else {printf("False\n")};
 
-//    isSymmetric();
-//    isTransitive();
-//    isDomain();
+
 //    isInjective();
 //    isBijective();
     return 0;
