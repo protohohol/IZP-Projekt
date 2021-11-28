@@ -202,6 +202,190 @@ void domain(struct relation R){
 }
 
 
+////reflexive
+bool isReflexive(relation *R, set *Universe) {
+    int ref = 0;
+    for(int i = 0; i < R->position; i++) {
+        if(strcmp(R->elements[i][0], R->elements[i][1]) == 0){
+            ref++;
+        }
+    } if(Universe->position == ref){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+//antisymmetric R
+bool isAntisymmetric(relation *R){
+    int anti = 0;
+    for (int i = 0; i < R->position; ++i) {
+        for (int j = i+1; j < R->position; ++j){
+            if ((strcmp(R->elements[i][0], R->elements[j][1]) == 0) && (strcmp(R->elements[i][1], R->elements[j][0]) == 0)){
+                anti++;
+            }
+        }
+    }
+    if(anti > 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+//function R
+bool isFunction(relation *R) {
+    int flag = 0;
+    for (int i = 0; i < R->position; ++i) {
+        for (int j = i+1; j < R->position; ++j) {
+            if (strcmp(R->elements[i][0], R->elements[j][0]) == 0 && strcmp(R->elements[i][1], R->elements[j][1])) {
+                    flag++;
+                }
+            }
+        }
+    if (flag > 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+//codomain R
+void codomain(relation *R) {
+    if(isFunction(R)){
+        printf("S %s ", R->elements[0][1]);
+        for (int i = 1; i < R->position; ++i){
+            for (int j = 0; j < i; j++){
+                if (strcmp(R->elements[i][1],R->elements[j][1]) != 0 && (j != i - 1)){
+                    continue;
+                } else if (strcmp(R->elements[i][1],R->elements[j][1]) != 0){
+                    printf("%s ", R->elements[i][1]);
+                } else if (strcmp(R->elements[i][1],R->elements[j][1]) == 0){
+                    break;
+                }
+            }
+        }
+    } else {
+    printf("Relation is not function!\n");}
+}
+
+
+//injective R A B
+bool isInjective(relation *R, set *A, set *B) {
+    int aCheck = 0;
+    int bCheck = 0;
+    int flagB = 0;
+    if (isFunction(R) == 0) {
+        return false;
+    } else {
+        if (A->position != R->position) {
+            return false;
+        } else {
+            for (int i = 0; i < R->position; i++) {
+                for (int j = 0; j < A->position; j++) {
+                    if (strcmp(R->elements[i][0], A->elements[j]) == 0) {
+                        aCheck++;
+                    }
+                }
+            }
+            for (int i = 0; i < R->position; i++) {
+                for (int j = 0; j < B->position; j++) {
+                    if (strcmp(R->elements[i][1], B->elements[j]) == 0) {
+                        bCheck++;
+                    }
+                }
+            }
+            for (int i = 0; i < R->position; ++i) {
+                for (int j = i+1; j < R->position; ++j) {
+                    if (strcmp(R->elements[i][1], R->elements[j][1]) == 0) {
+                        flagB++;
+                    }
+                }
+            }
+            if (aCheck == R->position && bCheck == R->position && flagB == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+}
+
+//surjective R A B
+bool isSurjective(relation *R, set *A, set *B) {
+    int aCheck = 0;
+    int bCheck = 0;
+    if (isFunction(R) == 0) {
+        return false;
+    } else {
+        if (B->position > R->position) {
+            return false;
+        } else {
+            for (int i = 0; i < R->position; i++) {
+                for (int j = 0; j < A->position; j++) {
+                    if (strcmp(R->elements[i][0], A->elements[j]) == 0) {
+                        aCheck++;
+                    }
+                }
+            }
+            for (int i = 0; i < R->position; i++) {
+                for (int j = 0; j < B->position; j++) {
+                    if (strcmp(R->elements[i][1], B->elements[j]) == 0 ) {
+                        bCheck++;
+                    }
+                }
+            }
+
+            if (aCheck == R->position && bCheck == R->position) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+}
+
+//bijective R A B
+bool isBijective(relation *R, set *A, set *B) {
+    if(isInjective(R, A, B) == 1 && isSurjective(R, A, B) == 1) {
+        return true;
+    } else {
+        return false;
+    }
+}
+int main() {
+    set A, B, Universe;
+    relation R;
+    if (isReflexive(&R, &Universe) == 1) {
+        printf("True\n");
+    } else {printf("False\n");
+    }
+    if (isAntisymmetric(&R) == 1) {
+        printf("True\n");
+    } else {printf("False\n");
+    }
+    if (isFunction(&R) == 1) {
+        printf("True\n");
+    } else {printf("False\n");
+    }
+    codomain(&R);
+    if (isInjective(&R, &A, &B) == 1) {
+        printf("True\n");
+    } else {printf("False\n");
+    }
+    if (isSurjective(&R, &A, &B) == 1) {
+        printf("True\n");
+    } else {printf("False\n");
+    }
+    if (isBijective(&R, &A, &B) == 1) {
+        printf("True\n");
+    } else {printf("False\n");
+    }
+    return 0;
+}
+
+
+
 int main() {
     set Universe, A, B;
 
