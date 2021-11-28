@@ -14,7 +14,7 @@ typedef struct {
 
 //empty A
 bool isEmpty(set *A){
-    if (A.elements[0][0] == '\0'){
+    if (A->elements[0][0] == '\0'){
         return true;
     } else {
         return false;
@@ -72,7 +72,7 @@ bool isSubseteq(set *A, set *B){
             if (j != B->size - 1){
                 continue;
             }
-            if (strcmp(A->elements[i], B->elements[B->position - 1]) != 0){
+            if (strcmp(A->elements[i], B->elements[B->size - 1]) != 0){
                 return false;
             }
         }
@@ -124,7 +124,7 @@ void minus(set *A, set *B){
                 if (j != B->size - 1){
                     continue;
                 }
-                if (strcmp(A->elements[i], B->elements[B.->size - 1]) != 0){
+                if (strcmp(A->elements[i], B->elements[B->size - 1]) != 0){
                     printf("%s ", A->elements[i]);
                 }
             }
@@ -136,9 +136,9 @@ void minus(set *A, set *B){
 //complement
 void complement(set *A, universe *Universe){
  printf ("S ")
-    if (isEquals(Universe,A) == 1){
+     if (A->size = B->size){
         printf("\n");
-    } else{
+    } else {
         for (int i = 0; i < A->size; ++i){
             for (int j = 0; j < B->size; ++j){
                 if (strcmp(A->elements[i], B->elements[j]) == 0){
@@ -184,7 +184,7 @@ bool isTransitive(struct relation *R) {
         for (int j = 1; j < R->size; ++j) {
             if (strcmp(R->elements[i][1], R->elements[j][0]) == 0){
                 for (int k = 0; k < R->size; ++k) {
-                    if ((strcmp(R->elements[i][0], R->elements[k][0]) != 0 || strcmp(R->elements[j][1], R->elements[k][1]) != 0) && (j != R.position)){
+                    if ((strcmp(R->elements[i][0], R->elements[k][0]) != 0 || strcmp(R->elements[j][1], R->elements[k][1]) != 0) && (j != R->size)){
                         continue;
                     }
                     else if (strcmp(R->elements[i][0], R->elements[R->size][0]) != 0 || strcmp(R->elements[j][1], R->elements[R->size][1]) != 0){
