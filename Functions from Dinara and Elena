@@ -136,25 +136,37 @@ void minus(set *A, set *B){
 //complement
 void complement(set *A, universe *Universe){
  printf ("S ")
-     if (A->size = B->size){
-        printf("\n");
-    } else {
-        for (int i = 0; i < A->size; ++i){
-            for (int j = 0; j < B->size; ++j){
-                if (strcmp(A->elements[i], B->elements[j]) == 0){
+     for (int i = 0; i < A->size; ++i){
+        for (int j = 0 ; j < univers->size; ++j){
+            if (strcmp(A->elements[i], univers->elements[j]) == 0){
+                break;
+            }
+            if (j != univers->size - 1){
+                continue;
+            }
+            if (strcmp(A->elements[i], univers->elements[univers->size - 1]) != 0){
+                for (int i = 0; i < A->size; ++i){
+            for (int j = 0; j < univers->size; ++j){
+                if (strcmp(A->elements[i], univers->elements[j]) == 0){
                     break;
                 }
-                if (j != B->size - 1){
+                if (j != univers->size - 1){
                     continue;
                 }
-                if (strcmp(A->elements[i], B->elements[B.->size - 1]) != 0){
-                    printf("%s ", U->elements[i]);
+                if (strcmp(A->elements[i], univers->elements[univers.->size - 1]) != 0){
+                    printf("%s ", Univers->elements[i]);
                 }
             }
         }
     }
     printf("\n");
 }
+            }
+        }
+    }
+    else printf("\n");
+}
+        
 
 
 bool isSymmetric(struct relation *R){
