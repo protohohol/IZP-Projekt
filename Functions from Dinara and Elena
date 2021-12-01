@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <malloc.h>
 #include <stdbool.h>
 
 typedef struct {
@@ -14,8 +13,8 @@ typedef struct {
 } relation;
 
 //empty A
-bool isEmpty(set A){
-    if (A.elements[0][0] == '\0'){
+bool isEmpty(set *A){
+    if (A->elements[0][0] == '\0'){
         return true;
     } else {
         return false;
@@ -23,24 +22,24 @@ bool isEmpty(set A){
 }
 
 //card A
-void card(set A) {
-    printf ("%d\n", A.position);
+void card(set *A) {
+    printf ("%d\n", A->size);
 }
 
 //union A B
-void union_sets(set A, set B) {
+void union_sets(set *A, set *B) {
     printf("S ");
-    for(int k = 0; k < A.position; k++) {
-        printf("%s ", A.elements[k]);
-    for (int i = 0; i < B.position; ++i) {
-        for (int j = 0; j < A.position; ++j) {
-            if (strcmp(B.elements[i], A.elements[j]) == 0) {
+    for(int k = 0; k < A->size; k++) {
+        printf("%s ", A->elements[k]);
+    for (int i = 0; i < B->size; ++i) {
+        for (int j = 0; j < A->size; ++j) {
+            if (strcmp(B->elements[i], A->elements[j]) == 0) {
                 break;
             }
-            if (j != A->position - 1) {
+            if (j != A->size - 1) {
                 continue;
             }
-            if (strcmp(B->elements[i], A->elements[A->position - 1]) != 0) {
+            if (strcmp(B->elements[i], A->elements[A->size - 1]) != 0) {
                 printf("%s ", B->elements[i]);
             }
         }
@@ -50,12 +49,12 @@ void union_sets(set A, set B) {
 }
 
 //intersect A B
-void intersect(set A, set B){
+void intersect(set *A, set *B){
     printf("S ")
-    for (int i = 0; i < A.position; ++i){
-        for (int j = 0; j < B.position; ++j){
-            if (strcmp(A.elements[i], B.elements[j]) == 0){
-                printf("%s ", A.elements[i]);
+    for (int i = 0; i < A->size; ++i){
+        for (int j = 0; j < B->size; ++j){
+            if (strcmp(A->elements[i], B->elements[j]) == 0){
+                printf("%s ", A->elements[i]);
                 break;
             }
         }
@@ -64,16 +63,16 @@ void intersect(set A, set B){
 }
 
 //subseteq A B
-bool isSubseteq(set A, set B){
-    for (int i = 0; i < A.position; ++i){
-        for (int j = 0 ; j < B.position; ++j){
-            if (strcmp(A.elements[i], B.elements[j]) == 0){
+bool isSubseteq(set *A, set *B){
+    for (int i = 0; i < A->size; ++i){
+        for (int j = 0 ; j < B->size; ++j){
+            if (strcmp(A->elements[i], B->elements[j]) == 0){
                 break;
             }
-            if (j != B.position - 1){
+            if (j != B->size - 1){
                 continue;
             }
-            if (strcmp(A.elements[i], B.elements[B.position - 1]) != 0){
+            if (strcmp(A->elements[i], B->elements[B->size - 1]) != 0){
                 return false;
             }
         }
@@ -82,8 +81,8 @@ bool isSubseteq(set A, set B){
 }
 
 //equals A B
-bool isEquals(set A, set B){
-    if (A.position = B.position){
+bool isEquals(set *A, set *B){
+    if (A->size = B->size){
         isSubseteq(A,B);
     } else {
         return false;
@@ -91,19 +90,19 @@ bool isEquals(set A, set B){
 }
 
 //subset A B
-bool subset(set A, set B) {
+bool subset(set *A, set *B) {
         if (isEquals(A, B)) {
             return false;
         }
-        for (int i = 0; i < A.position; ++i){
-            for (int j = 0 ; j < B.position; ++j){
-                if (strcmp(A.elements[i], B.elements[j]) == 0){
+        for (int i = 0; i < A->size; ++i){
+            for (int j = 0 ; j < B->size; ++j){
+                if (strcmp(A->elements[i], B->elements[j]) == 0){
                     break;
                 }
-                if (j != B.position - 1){
+                if (j != B->size - 1){
                     continue;
                 }
-                if (strcmp(A.elements[i], B.elements[B.position - 1]) != 0){
+                if (strcmp(A->elements[i], B->elements[B->size - 1]) != 0){
                     return false;
                 }
             }
@@ -112,21 +111,21 @@ bool subset(set A, set B) {
     }
 
 //minus A B
-void minus(set A, set B){
+void minus(set *A, set *B){
     printf ("S ")
     if (isEquals(A,B) == 1){
         printf("\n");
     } else{
-        for (int i = 0; i < A.position; ++i){
-            for (int j = 0; j < B.position; ++j){
-                if (strcmp(A.elements[i], B.elements[j]) == 0){
+        for (int i = 0; i < A->size; ++i){
+            for (int j = 0; j < B->size; ++j){
+                if (strcmp(A->elements[i], B->elements[j]) == 0){
                     break;
                 }
-                if (j != B.position - 1){
+                if (j != B->size - 1){
                     continue;
                 }
-                if (strcmp(A.elements[i], B.elements[B.position - 1]) != 0){
-                    printf("%s ", A.elements[i]);
+                if (strcmp(A->elements[i], B->elements[B->size - 1]) != 0){
+                    printf("%s ", A->elements[i]);
                 }
             }
         }
@@ -135,21 +134,50 @@ void minus(set A, set B){
 }
 
 //complement
-void complement(set A, set Universe){
-    minus(Universe, A);
-}
-
-bool isSymmetric(struct relation R){
-    for (int i = 0; i < R.position; ++i) {
-        for (int j = 0; j <  R.position; ++j){
-            if ((strcmp(R.elements[i][0],R.elements[j][1]) != 0) && (j != R.position)){
+void complement(set *A, universe *Universe){
+ printf ("S ")
+     for (int i = 0; i < A->size; ++i){
+        for (int j = 0 ; j < univers->size; ++j){
+            if (strcmp(A->elements[i], univers->elements[j]) == 0){
+                break;
+            }
+            if (j != univers->size - 1){
                 continue;
             }
-            else if (strcmp(R.elements[i][0],R.elements[R.position][1]) != 0){
+            if (strcmp(A->elements[i], univers->elements[univers->size - 1]) != 0){
+                for (int i = 0; i < A->size; ++i){
+            for (int j = 0; j < univers->size; ++j){
+                if (strcmp(A->elements[i], univers->elements[j]) == 0){
+                    break;
+                }
+                if (j != univers->size - 1){
+                    continue;
+                }
+                if (strcmp(A->elements[i], univers->elements[univers.->size - 1]) != 0){
+                    printf("%s ", Univers->elements[i]);
+                }
+            }
+        }
+    printf("\n");
+    }
+    else printf("\n");
+    }
+  }
+}
+        
+
+
+bool isSymmetric(struct relation *R){
+    for (int i = 0; i < R->size; ++i) {
+        for (int j = 0; j <  R->size; ++j){
+            if ((strcmp(R->elements[i][0],R->elements[j][1]) != 0) && (j != R->size)){
+                continue;
+            }
+            else if (strcmp(R->elements[i][0],R->elements[R->size][1]) != 0){
                 return false;
             }
             else {
-                if (strcmp(R.elements[i][1],R.elements[j][0]) == 0){
+                if (strcmp(R->elements[i][1],R->elements[j][0]) == 0){
                     break;
                 } else {
                     continue;
@@ -161,18 +189,18 @@ bool isSymmetric(struct relation R){
 }
 
 
-bool isTransitive(struct relation R) {
-    for (int i = 0; i < R.position; ++i) {
-        for (int j = 1; j < R.position; ++j) {
-            if (strcmp(R.elements[i][1], R.elements[j][0]) == 0){
-                for (int k = 0; k < R.position; ++k) {
-                    if ((strcmp(R.elements[i][0], R.elements[k][0]) != 0 || strcmp(R.elements[j][1], R.elements[k][1]) != 0) && (j != R.position)){
+bool isTransitive(struct relation *R) {
+    for (int i = 0; i < R->size; ++i) {
+        for (int j = 1; j < R->size; ++j) {
+            if (strcmp(R->elements[i][1], R->elements[j][0]) == 0){
+                for (int k = 0; k < R->size; ++k) {
+                    if ((strcmp(R->elements[i][0], R->elements[k][0]) != 0 || strcmp(R->elements[j][1], R->elements[k][1]) != 0) && (j != R->size)){
                         continue;
                     }
-                    else if (strcmp(R.elements[i][0], R.elements[R.position][0]) != 0 || strcmp(R.elements[j][1], R.elements[R.position][1]) != 0){
+                    else if (strcmp(R->elements[i][0], R->elements[R->size][0]) != 0 || strcmp(R->elements[j][1], R->elements[R->size][1]) != 0){
                         return false; //when iterate till the end and have not found needed
                     } else {
-                        if (strcmp(R.elements[i][0], R.elements[k][0]) == 0 && strcmp(R.elements[j][1], R.elements[k][1]) == 0){
+                        if (strcmp(R->elements[i][0], R->elements[k][0]) == 0 && strcmp(R->elements[j][1], R->elements[k][1]) == 0){
                             break;
                         }
                     }
@@ -184,22 +212,211 @@ bool isTransitive(struct relation R) {
 }
 
 
-void domain(struct relation R){
-    printf("%s ", R.elements[0][0]);
-    for (int i = 1; i < R.position; ++i){
+
+
+
+////reflexive
+bool isReflexive(relation *R, universe *Universe) {
+    int ref = 0;
+    for(int i = 0; i < R->size; i++) {
+        if(strcmp(R->elements[i][0], R->elements[i][1]) == 0){
+            ref++;
+        }
+    } if(Universe->size == ref){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+//antisymmetric R
+bool isAntisymmetric(relation *R){
+    int anti = 0;
+    for (int i = 0; i < R->size; ++i) {
+        for (int j = i+1; j < R->size; ++j){
+            if ((strcmp(R->elements[i][0], R->elements[j][1]) == 0) && (strcmp(R->elements[i][1], R->elements[j][0]) == 0)){
+                anti++;
+            }
+        }
+    }
+    if(anti > 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+//function R
+bool isFunction(relation *R) {
+    int flag = 0;
+    for (int i = 0; i < R->size; ++i) {
+        for (int j = i+1; j < R->size; ++j) {
+            if (strcmp(R->elements[i][0], R->elements[j][0]) == 0 && strcmp(R->elements[i][1], R->elements[j][1])) {
+                    flag++;
+                }
+            }
+        }
+    if (flag > 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+
+void domain(struct relation *R){
+     if(isFunction(R)){
+    printf("%s ", R->elements[0][0]);
+    for (int i = 1; i < R->size; ++i){
         for (int j = 0; j < i; j++){
-            if (strcmp(R.elements[i][0],R.elements[j][0]) != 0 && (j != i - 1)){
+            if (strcmp(R->elements[i][0],R->elements[j][0]) != 0 && (j != i - 1)){
                 continue;
             }
-            else if (strcmp(R.elements[i][0],R.elements[j][0]) != 0){
-                printf("%s ", R.elements[i][0]);
+            else if (strcmp(R->elements[i][0],R->elements[j][0]) != 0){
+                printf("%s ", R->elements[i][0]);
             }
-            else if (strcmp(R.elements[i][0],R.elements[j][0]) == 0){
+            else if (strcmp(R->elements[i][0],R->elements[j][0]) == 0){
                 break;
+            }
+        }
+    } else {
+    printf("Relation is not function!\n");}
+}
+
+//codomain R
+void codomain(relation *R) {
+    if(isFunction(R)){
+        printf("S %s ", R->elements[0][1]);
+        for (int i = 1; i < R->size; ++i){
+            for (int j = 0; j < i; j++){
+                if (strcmp(R->elements[i][1],R->elements[j][1]) != 0 && (j != i - 1)){
+                    continue;
+                } else if (strcmp(R->elements[i][1],R->elements[j][1]) != 0){
+                    printf("%s ", R->elements[i][1]);
+                } else if (strcmp(R->elements[i][1],R->elements[j][1]) == 0){
+                    break;
+                }
+            }
+        }
+    } else {
+    printf("Relation is not function!\n");}
+}
+
+
+//injective R A B
+bool isInjective(relation *R, set *A, set *B) {
+    int aCheck = 0;
+    int bCheck = 0;
+    int flagB = 0;
+    if (isFunction(R) == 0) {
+        return false;
+    } else {
+        if (A->position != R->size) {
+            return false;
+        } else {
+            for (int i = 0; i < R->size; i++) {
+                for (int j = 0; j < A->size; j++) {
+                    if (strcmp(R->elements[i][0], A->elements[j]) == 0) {
+                        aCheck++;
+                    }
+                }
+            }
+            for (int i = 0; i < R->size; i++) {
+                for (int j = 0; j < B->size; j++) {
+                    if (strcmp(R->elements[i][1], B->elements[j]) == 0) {
+                        bCheck++;
+                    }
+                }
+            }
+            for (int i = 0; i < R->size; ++i) {
+                for (int j = i+1; j < R->size; ++j) {
+                    if (strcmp(R->elements[i][1], R->elements[j][1]) == 0) {
+                        flagB++;
+                    }
+                }
+            }
+            if (aCheck == R->size && bCheck == R->size && flagB == 0) {
+                return true;
+            } else {
+                return false;
             }
         }
     }
 }
+
+//surjective R A B
+bool isSurjective(relation *R, set *A, set *B) {
+    int aCheck = 0;
+    int bCheck = 0;
+    if (isFunction(R) == 0) {
+        return false;
+    } else {
+        if (B->size > R->size) {
+            return false;
+        } else {
+            for (int i = 0; i < R->size; i++) {
+                for (int j = 0; j < A->size; j++) {
+                    if (strcmp(R->elements[i][0], A->elements[j]) == 0) {
+                        aCheck++;
+                    }
+                }
+            }
+            for (int i = 0; i < R->size; i++) {
+                for (int j = 0; j < B->size; j++) {
+                    if (strcmp(R->elements[i][1], B->elements[j]) == 0 ) {
+                        bCheck++;
+                    }
+                }
+            }
+
+            if (aCheck == R->size && bCheck == R->size) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+}
+
+//bijective R A B
+bool isBijective(relation *R, set *A, set *B) {
+    if(isInjective(R, A, B) == 1 && isSurjective(R, A, B) == 1) {
+        return true;
+    } else {
+        return false;
+    }
+}
+int main() {
+    set A, B, Universe;
+    relation R;
+    if (isReflexive(&R, &Universe) == 1) {
+        printf("True\n");
+    } else {printf("False\n");
+    }
+    if (isAntisymmetric(&R) == 1) {
+        printf("True\n");
+    } else {printf("False\n");
+    }
+    if (isFunction(&R) == 1) {
+        printf("True\n");
+    } else {printf("False\n");
+    }
+    codomain(&R);
+    if (isInjective(&R, &A, &B) == 1) {
+        printf("True\n");
+    } else {printf("False\n");
+    }
+    if (isSurjective(&R, &A, &B) == 1) {
+        printf("True\n");
+    } else {printf("False\n");
+    }
+    if (isBijective(&R, &A, &B) == 1) {
+        printf("True\n");
+    } else {printf("False\n");
+    }
+    return 0;
+}
+
 
 
 int main() {
