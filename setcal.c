@@ -2,6 +2,25 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
+
+#define SAR_CLEAN {\
+    free(sets);\
+    free(relations);\
+    fclose(file);\
+}\
+
+#define  MEMORY_CLEAN {\
+    cleanArray(&uni.elements, uni.size);\
+    free(uni.elements);\
+    free(bufferLine);\
+    SAR_CLEAN\
+}\
+
+typedef struct {
+    char** elements;
+    int size;
+} universe;
 
 //Structure for sets
 typedef struct {
@@ -9,11 +28,6 @@ typedef struct {
     int position;
     int size;
 } set;
-
-typedef struct {
-    char** elements;
-    int size;
-} universe;
 
 //Structure for relations
 typedef struct {
@@ -40,6 +54,18 @@ bool endOfLine(char c) {
     return false;
 }
 
+bool isBanned(char* source) {
+    char* bannedWords[5] = {"U", "S", "R", "true", "false"};
+    for (int i = 0; i < (int)strlen(source); i++) {
+        for (int n = 0; n < 5; n++) {
+            if(!strcmp(source, bannedWords[n])) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 //Fills an array with elements from array source. Divider of elements is space
 int fillArray(char*** array, char* source, int elementsCounter) {
     (*array) = malloc(sizeof *array * elementsCounter);
@@ -56,6 +82,16 @@ int fillArray(char*** array, char* source, int elementsCounter) {
         element[positionInElement + 1] = '\0';
         positionInElement++;
         if (endOfLine(source[start + 1]) || source[start + 1] == ' ') {
+            if(isBanned(element)) {
+                fprintf(stderr, "Word %s is banned!\n", element);
+                return 0;
+            }
+            for (int i = 0; i < positionInArray; i++) {
+                if (!strcmp(element, (*array)[i])) {
+                    fprintf(stderr, "Elements in set cannot repeat!\n");
+                    return 0;
+                }
+            }
             strcpy((*array)[positionInArray], element);
             positionInArray++;                         
             clean(element);
@@ -115,6 +151,22 @@ int fillRelation(char**** array, char* source, int relationsCounter) {
         if ((endOfLine(source[start + 1]) || (source[start + 1] == ' ' &&  source[start + 2] != '(')
         || source[start + 1] == ')') && control) {
             strcpy((*array)[positionInRelation][numberOfBinaryElement], element);
+            if (numberOfBinaryElement) {
+                int control = 0;
+                char* check[2] = {(*array)[positionInRelation][numberOfBinaryElement-1], (*array)[positionInRelation][numberOfBinaryElement]};
+                for (int i = 0; i < positionInRelation; i++) {
+                    control = 0;
+                    for (int n = 0; n < 2; n++) {
+                        if(!strcmp((*array)[i][n], check[n])) {
+                            control++;
+                        }
+                        if (control == 2) {
+                            fprintf(stderr, "Binary relations cannot repeat!\n");
+                            return 0;
+                        }
+                    }
+                }
+            }
             numberOfBinaryElement++;                         
             clean(element);
             positionInElement = 0;
@@ -140,10 +192,25 @@ bool isElementOfArray(universe* uni, char** comparable) {
     return false;
 }
 
+//universe* uni, relation** relations, set** sets, FILE* file, char* bufferLine
+// void memoryClean(int operation, ...) {
+//     free(uni->elements);
+//     free(relations);
+//     free(sets);
+//     free(bufferLine);
+//     fclose(file);
+// }
+
+void cleanArray(char*** array, int size) {
+    for (int i = 0; i < size; i++) {
+        free((*array)[i]);
+    }
+}
+
 int main(int argc, char **argv) {
     (void) argc;
 
-    FILE *file;
+    FILE* file;
     if ((file = fopen(argv[1], "r")) == NULL) {
         fprintf(stderr, "Cannot open file!\n");
         return 1;
@@ -163,7 +230,6 @@ int main(int argc, char **argv) {
     while((bufferSymbol = fgetc(file)) != EOF) {
         char* checkBuffer = realloc(bufferLine, (symbolsCounter+2));
         if (checkBuffer == NULL) {
-            free(checkBuffer);
             fprintf(stderr, "Cannot realloc bufferLine!\n");
             return 1;
         } else {
@@ -174,7 +240,7 @@ int main(int argc, char **argv) {
             bufferLine[symbolsCounter + 1] = '\0';
             symbolsCounter++;
             if (bufferLine[0] == 'U' || bufferLine[0] == 'S') {
-                if (bufferSymbol == ' ') {
+                if (bufferSymbol == ' ' || (endOfLine(bufferSymbol) && (symbolsCounter - 1 == 0 || symbolsCounter - 1 == 1))) {
                     setElementsCounter++;
                 }
             } else if (bufferLine[0] == 'R') {
@@ -186,25 +252,37 @@ int main(int argc, char **argv) {
             symbolsCounter = 0;
             if (lineCounter == 1) {
                 if (bufferLine[0] == 'U' && bufferLine[1] == ' ') {
+                    uni.size = setElementsCounter;
                     if (!fillArray(&uni.elements, bufferLine, setElementsCounter)) {
+                        MEMORY_CLEAN
                         return 1;
                     }
-                    uni.size = setElementsCounter;
+                    // if (isBanned(&uni)) {
+                    //     fprintf(stderr, "Your univerzum contains banned words!\n");
+                    //     return 1;
+                    // }
                     setElementsCounter = 0;
                 } else {
                     fprintf(stderr, "You didn't set univerzum!\n");
                     return 1;
                 }
-            } else if (bufferLine[0] == 'S' && bufferLine[1] == ' ') {
-                if (!fillArray(&sets[setCounter].elements, bufferLine, setElementsCounter)) {
-                    return 1;
-                }
-                sets[setCounter].size = setElementsCounter;
-                setElementsCounter = 0;
-                for (int i = 0; i < sets[setCounter].size; i++) {
-                    if (!isElementOfArray(&uni, &sets[setCounter].elements[i])) {
-                        fprintf(stderr, "Element \"%s\" is not in the univerzum!\n", sets[setCounter].elements[i]);
+            } else if (bufferLine[0] == 'S') {
+                if (endOfLine(bufferLine[1]) || (bufferLine[1] == ' ' && endOfLine(bufferLine[2]))) {
+                    sets[setCounter].elements = malloc(sizeof *(sets->elements));
+                    sets[setCounter].elements[0] = malloc(sizeof **(sets->elements));
+                    sets[setCounter].elements[0][0] = '\0';
+                    sets[setCounter].size = 1;
+                } else if (bufferLine[1] == ' ' && !endOfLine(bufferLine[2])) {
+                    if (!fillArray(&sets[setCounter].elements, bufferLine, setElementsCounter)) {
                         return 1;
+                    }
+                    sets[setCounter].size = setElementsCounter;
+                    setElementsCounter = 0;
+                    for (int i = 0; i < sets[setCounter].size; i++) {
+                        if (!isElementOfArray(&uni, &sets[setCounter].elements[i])) {
+                            fprintf(stderr, "Element \"%s\" is not in the univerzum!\n", sets[setCounter].elements[i]);
+                            return 1;
+                        }
                     }
                 }
                 sets[setCounter].position = lineCounter;
@@ -270,9 +348,9 @@ int main(int argc, char **argv) {
     }
 
     free(uni.elements);
-    free(relations);
-    free(sets);
     free(bufferLine);
+    free(sets);
+    free(relations);
     fclose(file);
 
     return 0;
