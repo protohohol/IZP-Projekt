@@ -1,11 +1,13 @@
-U one two three four five
+U one two three four five fuck it help me you
 S one two
 S three
 S four fuck it five
 S two
-S asfkjasf
-R (fasfas asdf) (as afds) (af asf) (fds fadsfasf) (ads fas) (asd fasfas)
+S three it
+R (one two) (two two) (five five) (it it) (fuck fuck) (five fuck)
 S fuck
-R (help me) (fuck you) (fuck it) (fuck C)
+R (help me) (fuck you) (fuck it) (fuck me)
 S
 S 
+R
+R 
