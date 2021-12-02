@@ -3,9 +3,36 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define SET_CLEAN {\
+    for (int i = 0; i < setCounter; i++) {\
+        for (int n = 0; n < sets[i].size; n++) {\
+            free(sets[i].elements[n]);\
+        }\
+        free(sets[i].elements);\
+    }\
+}\
+
+#define RELATIONS_CLEAN {\
+    for (int i = 0; i < relationCounter; i++) {\
+        for (int f = 0; f < relations[i].size; f++) {\
+            for (int g = 0; g < 2; g++) {\
+                free(relations[i].elements[f][g]);\
+                g++;\
+                free(relations[i].elements[f][g]);\
+            }\
+            free(relations[i].elements[f]);\
+        }\
+        free(relations[i].elements);\
+    }\
+}\
+
 #define SAR_CLEAN {\
-    free(sets);\
-    free(relations);\
+    if (sets != NULL) {\
+        free(sets);\
+    }\
+    if (relations != NULL) {\
+        free(relations);\
+    }\
     fclose(file);\
 }\
 
@@ -13,6 +40,8 @@
     cleanArray(&uni.elements, uni.size);\
     free(uni.elements);\
     free(bufferLine);\
+    SET_CLEAN\
+    RELATIONS_CLEAN\
     SAR_CLEAN\
 }\
 
@@ -203,6 +232,10 @@ int fillRelation(char**** array, char* source, int relationsCounter) {
             }
         }
         start++;
+        if (source[start] == ')' && ((source[start + 1] == ' ' && !endOfLine(source[start + 2])) || source[start + 1] != ' ')) {
+            fprintf(stderr, "Given relation is wrong!\n");
+            return 0;
+        }
     }
     if (positionInElement > 30) {
         fprintf(stderr, "Max length of argument is 30!\n");
@@ -255,13 +288,14 @@ int main(int argc, char **argv) {
     int relationCounter = 0;
     int setElementsCounter = 0;
     int relationElementsCounter = 0;
+    bool err_detector = false;
 
     while((bufferSymbol = fgetc(file)) != EOF) {
         char* checkBuffer = realloc(bufferLine, (symbolsCounter+2));
         if (checkBuffer == NULL) {
             fprintf(stderr, "Cannot realloc bufferLine!\n");
-            SAR_CLEAN
-            return 1;
+            err_detector = true;
+            break;
         } else {
             bufferLine = checkBuffer;
         }
@@ -287,8 +321,9 @@ int main(int argc, char **argv) {
                     }
                     uni.size = setElementsCounter;
                     if (!fillArray(&uni.elements, bufferLine, setElementsCounter)) {
-                        MEMORY_CLEAN
-                        return 1;
+                        fprintf(stderr, "Cannot fill univerzum!\n");
+                        err_detector = true;
+                        break;
                     }
                     // if (isBanned(&uni)) {
                     //     fprintf(stderr, "Your univerzum contains banned words!\n");
@@ -297,14 +332,17 @@ int main(int argc, char **argv) {
                     setElementsCounter = 0;
                 } else {
                     fprintf(stderr, "You didn't set univerzum!\n");
-                    return 1;
+                    err_detector = true;
+                    break;
                 }
             } else if (bufferLine[0] == 'S') {
                 if (setElementsCounter == 1 && bufferLine[1] == ' ' && bufferLine[2] == '\0') {
                         setElementsCounter--;
                 }
                 if (!fillArray(&sets[setCounter].elements, bufferLine, setElementsCounter)) {
-                    return 1;
+                    fprintf(stderr, "Cannot fill set!\n");
+                    err_detector = true;
+                    break;
                 }
                 sets[setCounter].size = setElementsCounter;
                 setElementsCounter = 0;
@@ -312,22 +350,31 @@ int main(int argc, char **argv) {
                     for (int i = 0; i < sets[setCounter].size; i++) {
                         if (!isElementOfArray(&uni, &sets[setCounter].elements[i])) {
                             fprintf(stderr, "Element \"%s\" is not in the univerzum!\n", sets[setCounter].elements[i]);
-                            return 1;
+                            err_detector = true;
+                            break;
                         }
                     }
                 }
+
+                if (err_detector) {
+                    break;
+                }
+                
                 sets[setCounter].position = lineCounter;
                 setCounter++;
                 set* checkSets = realloc(sets, sizeof(set) * (setCounter + 1));
                 if (checkSets == NULL) {
                     fprintf(stderr, "Cannot realloc sets!\n");
-                    return 1;
+                    err_detector = true;
+                    break;
                 } else {
                     sets = checkSets;
                 }
             } else if (bufferLine[0] == 'R') {
                 if (!fillRelation(&relations[relationCounter].elements, bufferLine, relationElementsCounter)) {
-                    return 1;
+                    fprintf(stderr, "Cannot fill relation!\n");
+                    err_detector = true;
+                    break;
                 }
                 relations[relationCounter].position = lineCounter;
                 relations[relationCounter].size = relationElementsCounter;
@@ -338,23 +385,33 @@ int main(int argc, char **argv) {
                         for (int n = 0; n < 2; n++) {
                             if (!isElementOfArray(&uni, &relations[relationCounter].elements[i][n])) {
                                 fprintf(stderr, "Element \"%s\" is not in the univerzum!\n", relations[relationCounter].elements[i][n]);
-                                return 1;
+                                err_detector = true;
+                                break;
                             }
                         }
+                        if (err_detector) {
+                            break;
+                        }
                     }
+                }
+                
+                if (err_detector) {
+                    break;
                 }
 
                 relationCounter++;
                 relation* checkRelations = realloc(relations, sizeof(relation) * (relationCounter + 1));
                 if (checkRelations == NULL) {
                     fprintf(stderr, "Cannot realloc relations!\n");
-                    return 1;
+                    err_detector = true;
+                    break;
                 } else {
                     relations = checkRelations;
                 }
             } else {
                 fprintf(stderr, "Line %d is not correct!\n", lineCounter);
-                return 1;
+                err_detector = true;
+                break;
             }
             printf("bufferLine: %s\n", bufferLine);
             clean(bufferLine);
@@ -362,39 +419,32 @@ int main(int argc, char **argv) {
         }
     }
 
+    if (err_detector) {
+        MEMORY_CLEAN
+        return 1;
+    }
+
     for (int z = 0; z < uni.size; z++) {
         printf("univerzum[%d]: %s\n", z, uni.elements[z]);
-        free(uni.elements[z]);
     }
 
     for (int i = 0; i < setCounter; i++) {
         for (int n = 0; n < sets[i].size; n++) {
             printf("sets[%d].elements[%d]: %s\n", i, n, sets[i].elements[n]);
-            free(sets[i].elements[n]);
         }
         printf("sets[%d].position: %d\n", i, sets[i].position);
-        free(sets[i].elements);
     }
 
     for (int i = 0; i < relationCounter; i++) {
         for (int f = 0; f < relations[i].size; f++) {
-            for (int g = 0; g < 2; g++) {
+            for (int g = 0; g < 1; g++) {
                 printf("relations[%d].elements[%d]: %s %s\n", i, f, relations[i].elements[f][g], relations[i].elements[f][g + 1]);
-                free(relations[i].elements[f][g]);
-                g++;
-                free(relations[i].elements[f][g]);
             }
-            free(relations[i].elements[f]);
         }
         printf("relations[%d].position: %d\n", i, relations[i].position);
-        free(relations[i].elements);
     }
 
-    free(uni.elements);
-    free(bufferLine);
-    free(sets);
-    free(relations);
-    fclose(file);
+    MEMORY_CLEAN
 
     return 0;
 }
