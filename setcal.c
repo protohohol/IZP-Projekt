@@ -5,8 +5,10 @@
 
 #define SET_CLEAN {\
     for (int i = 0; i < setCounter; i++) {\
-        for (int n = 0; n < sets[i].size; n++) {\
-            free(sets[i].elements[n]);\
+        if (sets[i].size == 0 && sets[i].elements[0][0] == '\0') {\
+            free(sets[i].elements[0]);\
+        } else {\
+            cleanArray(&sets[i].elements, sets[i].size);\
         }\
         free(sets[i].elements);\
     }\
@@ -15,11 +17,8 @@
 #define RELATIONS_CLEAN {\
     for (int i = 0; i < relationCounter; i++) {\
         for (int f = 0; f < relations[i].size; f++) {\
-            for (int g = 0; g < 2; g++) {\
-                free(relations[i].elements[f][g]);\
-                g++;\
-                free(relations[i].elements[f][g]);\
-            }\
+            free(relations[i].elements[f][0]);\
+            free(relations[i].elements[f][1]);\
             free(relations[i].elements[f]);\
         }\
         free(relations[i].elements);\
@@ -137,6 +136,10 @@ int fillArray(char*** array, char* source, int elementsCounter) {
         element[positionInElement + 1] = '\0';
         positionInElement++;
         if (endOfLine(source[start + 1]) || source[start + 1] == ' ') {
+            if (source[start] == ' ' && (source[start - 1] == ' ' || endOfLine(source[start + 1]))) {
+                fprintf(stderr, "You entered wrong line!\n");
+                return 0;
+            }
             if(isBanned(element)) {
                 fprintf(stderr, "Word %s is banned!\n", element);
                 return 0;
@@ -209,15 +212,15 @@ int fillRelation(char**** array, char* source, int relationsCounter) {
         || source[start + 1] == ')') && control) {
             strcpy((*array)[positionInRelation][numberOfBinaryElement], element);
             if (numberOfBinaryElement) {
-                int control = 0;
+                int repeat = 0;
                 char* check[2] = {(*array)[positionInRelation][numberOfBinaryElement-1], (*array)[positionInRelation][numberOfBinaryElement]};
                 for (int i = 0; i < positionInRelation; i++) {
-                    control = 0;
+                    repeat = 0;
                     for (int n = 0; n < 2; n++) {
                         if(!strcmp((*array)[i][n], check[n])) {
-                            control++;
+                            repeat++;
                         }
-                        if (control == 2) {
+                        if (repeat == 2) {
                             fprintf(stderr, "Binary relations cannot repeat!\n");
                             return 0;
                         }
@@ -232,9 +235,14 @@ int fillRelation(char**** array, char* source, int relationsCounter) {
             }
         }
         start++;
-        if (source[start] == ')' && ((source[start + 1] == ' ' && !endOfLine(source[start + 2])) || source[start + 1] != ' ')) {
-            fprintf(stderr, "Given relation is wrong!\n");
-            return 0;
+        if (source[start] == ')') {
+            if (source[start + 1] != ' ' || endOfLine(source[start + 1])) {
+                fprintf(stderr, "Given relation is wrong!\n");
+                return 0;
+            } else if (source[start + 1] == ' ' && source[start + 2] != '(') {
+                fprintf(stderr, "Given relation is wrong!\n");
+                return 0;
+            }
         }
     }
     if (positionInElement > 30) {
@@ -339,12 +347,13 @@ int main(int argc, char **argv) {
                 if (setElementsCounter == 1 && bufferLine[1] == ' ' && bufferLine[2] == '\0') {
                         setElementsCounter--;
                 }
+                sets[setCounter].size = setElementsCounter;
                 if (!fillArray(&sets[setCounter].elements, bufferLine, setElementsCounter)) {
                     fprintf(stderr, "Cannot fill set!\n");
                     err_detector = true;
+                    setCounter++;
                     break;
                 }
-                sets[setCounter].size = setElementsCounter;
                 setElementsCounter = 0;
                 if (sets[setCounter].size != 0) {
                     for (int i = 0; i < sets[setCounter].size; i++) {
@@ -371,13 +380,13 @@ int main(int argc, char **argv) {
                     sets = checkSets;
                 }
             } else if (bufferLine[0] == 'R') {
+                relations[relationCounter].size = relationElementsCounter;
                 if (!fillRelation(&relations[relationCounter].elements, bufferLine, relationElementsCounter)) {
                     fprintf(stderr, "Cannot fill relation!\n");
                     err_detector = true;
                     break;
                 }
                 relations[relationCounter].position = lineCounter;
-                relations[relationCounter].size = relationElementsCounter;
                 relationElementsCounter = 0;
                 
                 if (relations[relationCounter].size != 0) {
@@ -385,6 +394,7 @@ int main(int argc, char **argv) {
                         for (int n = 0; n < 2; n++) {
                             if (!isElementOfArray(&uni, &relations[relationCounter].elements[i][n])) {
                                 fprintf(stderr, "Element \"%s\" is not in the univerzum!\n", relations[relationCounter].elements[i][n]);
+                                relationCounter++;
                                 err_detector = true;
                                 break;
                             }
@@ -437,9 +447,7 @@ int main(int argc, char **argv) {
 
     for (int i = 0; i < relationCounter; i++) {
         for (int f = 0; f < relations[i].size; f++) {
-            for (int g = 0; g < 1; g++) {
-                printf("relations[%d].elements[%d]: %s %s\n", i, f, relations[i].elements[f][g], relations[i].elements[f][g + 1]);
-            }
+            printf("relations[%d].elements[%d]: %s %s\n", i, f, relations[i].elements[f][0], relations[i].elements[f][1]);
         }
         printf("relations[%d].position: %d\n", i, relations[i].position);
     }
