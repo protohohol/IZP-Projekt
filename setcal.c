@@ -35,8 +35,8 @@
 
 #define  MEMORY_CLEAN {\
     if (uni.elements != NULL) {\
-    cleanArray(&uni.elements, uni.size);\
-    free(uni.elements);\
+        cleanArray(&uni.elements, uni.size);\
+        free(uni.elements);\
     }\
     free(bufferLine);\
     SET_CLEAN\
@@ -788,9 +788,8 @@ int main(int argc, char **argv) {
                 }
                 sets[setCounter].size = setElementsCounter;
                 if (!fillArray(&sets[setCounter].elements, bufferLine, setElementsCounter)) {
-                    fprintf(stderr, "Cannot fill set!\n");
-                    err_detector = true;
                     setCounter++;
+                    err_detector = true;
                     break;
                 }
                 setElementsCounter = 0;
@@ -798,6 +797,7 @@ int main(int argc, char **argv) {
                     for (int i = 0; i < sets[setCounter].size; i++) {
                         if (!isElementOfArray(&uni, &sets[setCounter].elements[i])) {
                             fprintf(stderr, "Element \"%s\" is not in the univerzum!\n", sets[setCounter].elements[i]);
+                            setCounter++;
                             err_detector = true;
                             goto err_detected;
                         }
@@ -823,7 +823,7 @@ int main(int argc, char **argv) {
 
                 relations[relationCounter].size = relationElementsCounter;
                 if (!fillRelation(&relations[relationCounter].elements, bufferLine, relationElementsCounter)) {
-                    fprintf(stderr, "Cannot fill relation!\n");
+                    relationCounter++;
                     err_detector = true;
                     break;
                 }
